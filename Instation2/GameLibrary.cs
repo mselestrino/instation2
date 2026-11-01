@@ -2,8 +2,9 @@ using System.IO;
 
 namespace Instation2;
 
-public sealed record GameEntry(string Name, string FilePath, long SizeBytes, string? CoverPath)
+public sealed record GameEntry(string Name, string FilePath, long SizeBytes, string? CoverPath, GameMetadata? Metadata = null)
 {
+    public string DisplayName => Metadata?.Title ?? Name;
     public string SizeLabel => SizeBytes >= 1024L * 1024 * 1024
         ? $"{SizeBytes / (1024d * 1024 * 1024):0.0} GB"
         : $"{SizeBytes / (1024d * 1024):0} MB";
@@ -47,14 +48,11 @@ public static class GameLibrary
             catch (UnauthorizedAccessException) { }
         }
 
-        return games
-            .OrderBy(game => game.Name, StringComparer.CurrentCultureIgnoreCase)
-            .ToArray();
+        return games.OrderBy(game => game.Name, StringComparer.CurrentCultureIgnoreCase).ToArray();
     }
 
     private static string? FindCover(FileInfo gameFile)
     {
-        // Primeiro procura uma capa com o mesmo nome do arquivo do jogo.
         foreach (var extension in CoverExtensions)
         {
             var sibling = Path.ChangeExtension(gameFile.FullName, extension);
@@ -62,7 +60,6 @@ public static class GameLibrary
                 return sibling;
         }
 
-        // Depois procura em uma pasta "covers" ao lado da imagem do jogo.
         var coverFolder = Path.Combine(gameFile.DirectoryName!, "covers");
         if (Directory.Exists(coverFolder))
         {
