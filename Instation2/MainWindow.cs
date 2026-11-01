@@ -4,6 +4,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
+using Avalonia.Media.Imaging;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 
@@ -16,6 +17,8 @@ public sealed class MainWindow : Window
     private readonly TextBlock _countText;
     private readonly TextBlock _detailsText;
     private readonly TextBlock _statusText;
+    private readonly Image _coverImage;
+    private Bitmap? _currentCover;
     private readonly ListBox _gameList;
     private readonly string[] _categories = ["Jogos", "Favoritos", "Recentes", "Emulador", "Sistema"];
     private IReadOnlyList<GameEntry> _games = [];
@@ -28,6 +31,7 @@ public sealed class MainWindow : Window
         SystemDecorations = SystemDecorations.None;
         Background = Brushes.Black;
         KeyDown += HandleKeyDown;
+        Closed += (_, _) => _currentCover?.Dispose();
 
         var root = new Grid();
         root.Children.Add(new XmbBackground());
@@ -107,6 +111,20 @@ public sealed class MainWindow : Window
             Text = "DETALHES DO JOGO",
             FontSize = 12,
             Foreground = new SolidColorBrush(Color.FromArgb(180, 220, 235, 255))
+        });
+        _coverImage = new Image
+        {
+            Width = 220,
+            Height = 300,
+            Stretch = Stretch.Uniform,
+            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Left
+        };
+        right.Children.Add(_coverImage);
+        right.Children.Add(new TextBlock
+        {
+            Text = "CAPA LOCAL",
+            FontSize = 10,
+            Foreground = new SolidColorBrush(Color.FromArgb(150, 220, 235, 255))
         });
         _detailsText = new TextBlock
         {
@@ -220,7 +238,24 @@ public sealed class MainWindow : Window
 
         var game = _games[_gameList.SelectedIndex];
         _detailsText.Text = game.Name;
-        _statusText.Text = $"{game.SizeLabel}\n{game.FilePath}";
+        _currentCover?.Dispose();
+        _currentCover = null;
+        _coverImage.Source = null;
+        if (!string.IsNullOrWhiteSpace(game.CoverPath))
+        {
+            try
+            {
+                _currentCover = new Bitmap(game.CoverPath);
+                _coverImage.Source = _currentCover;
+            }
+            catch (Exception ex) when (ex is IOException or ArgumentException)
+            {
+                _statusText.Text = $"Não foi possível carregar a capa: {ex.Message}";
+            }
+        }
+        _statusText.Text = game.CoverPath is null
+            ? $"{game.SizeLabel}\nSem capa local encontrada.\n{game.FilePath}"
+            : $"{game.SizeLabel}\n{game.FilePath}";
     }
 
     private async void ConfigureEmulator()
