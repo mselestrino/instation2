@@ -2,6 +2,16 @@ using System.IO;
 
 namespace Instation2;
 
+public sealed class GameMetadata
+{
+    public string Title { get; set; } = "";
+    public string[] Aliases { get; set; } = [];
+    public string? Serial { get; set; }
+    public string? Region { get; set; }
+    public string? Description { get; set; }
+    public string? CoverUrl { get; set; }
+}
+
 public sealed record GameEntry(string Name, string FilePath, long SizeBytes, string? CoverPath, GameMetadata? Metadata = null)
 {
     public string DisplayName => Metadata?.Title ?? Name;
