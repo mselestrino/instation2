@@ -4,12 +4,12 @@ Uma biblioteca e launcher de jogos de PlayStation 2 para Windows, com interface 
 
 ## Estado do projeto
 
-A primeira base visual está em desenvolvimento. O protótipo atual abre em tela cheia, apresenta o fundo animado e permite navegar pelas categorias e opções com o teclado.
+A versão atual já possui leitura de jogos em pastas cadastradas, salvamento das configurações, detecção de capas locais e integração inicial com o PCSX2.
 
 ## Requisitos
 
 - Windows 10 ou 11
-- .NET 8 SDK
+- .NET 8 SDK para executar em desenvolvimento
 
 ## Executar em desenvolvimento
 
@@ -20,18 +20,53 @@ dotnet restore
 dotnet run
 ```
 
+## Biblioteca de jogos
+
+No programa, use **Adicionar pasta** para selecionar uma ou mais pastas. O Instation 2 procura arquivos:
+
+- ISO, CHD, CSO, BIN, GZ e ELF
+
+As pastas cadastradas são salvas em `%LOCALAPPDATA%\Instation2\settings.json`.
+
+### Capas locais
+
+Para mostrar a capa de um jogo, coloque uma imagem JPG, JPEG, PNG ou WEBP com o mesmo nome do arquivo do jogo.
+
+Exemplo:
+
+```text
+Jogos PS2/
+  Gran Turismo 4.iso
+  Gran Turismo 4.jpg
+```
+
+Também é possível guardar as capas em uma subpasta chamada `covers`:
+
+```text
+Jogos PS2/
+  Gran Turismo 4.iso
+  covers/
+    Gran Turismo 4.jpg
+```
+
+## PCSX2
+
+Use o botão **Emulador** para selecionar `pcsx2-qt.exe`. Depois selecione um jogo e pressione **Enter** para iniciá-lo.
+
 ## Controles
 
 - **← / →**: mudar categoria
-- **↑ / ↓**: navegar
-- **Enter**: selecionar
+- **↑ / ↓**: navegar pelos jogos
+- **Enter**: iniciar jogo selecionado
+- **A**: adicionar pasta
+- **F5**: verificar biblioteca novamente
 - **Esc**: sair
 
 ## Próximas etapas
 
-1. Biblioteca de jogos e leitura de capas/metadados.
-2. Cadastro e verificação de pastas com jogos.
-3. Integração com PCSX2 e inicialização dos jogos.
-4. Configurações, favoritos e histórico.
+1. Catálogo de capas e informações por título.
+2. Favoritos e histórico de jogos.
+3. Refinar a navegação XMB e a apresentação visual da biblioteca.
+4. Melhorar a integração com o PCSX2.
 
 O projeto não distribui imagens ISO comerciais. Use cópias de jogos que você tenha direito de utilizar.
