@@ -2,7 +2,7 @@ using System.IO;
 
 namespace Instation2;
 
-public sealed record GameEntry(string Name, string FilePath, long SizeBytes)
+public sealed record GameEntry(string Name, string FilePath, long SizeBytes, string? CoverPath)
 {
     public string SizeLabel => SizeBytes >= 1024L * 1024 * 1024
         ? $"{SizeBytes / (1024d * 1024 * 1024):0.0} GB"
@@ -15,6 +15,8 @@ public static class GameLibrary
     {
         ".iso", ".chd", ".cso", ".bin", ".gz", ".elf"
     };
+
+    private static readonly string[] CoverExtensions = [".jpg", ".jpeg", ".png", ".webp"];
 
     public static IReadOnlyList<GameEntry> Scan(IEnumerable<string> folders)
     {
@@ -31,7 +33,11 @@ public static class GameLibrary
                     try
                     {
                         var info = new FileInfo(file);
-                        games.Add(new GameEntry(Path.GetFileNameWithoutExtension(file), info.FullName, info.Length));
+                        games.Add(new GameEntry(
+                            Path.GetFileNameWithoutExtension(file),
+                            info.FullName,
+                            info.Length,
+                            FindCover(info)));
                     }
                     catch (IOException) { }
                     catch (UnauthorizedAccessException) { }
@@ -44,5 +50,34 @@ public static class GameLibrary
         return games
             .OrderBy(game => game.Name, StringComparer.CurrentCultureIgnoreCase)
             .ToArray();
+    }
+
+    private static string? FindCover(FileInfo gameFile)
+    {
+        // Primeiro procura uma capa com o mesmo nome do arquivo do jogo.
+        foreach (var extension in CoverExtensions)
+        {
+            var sibling = Path.ChangeExtension(gameFile.FullName, extension);
+            if (File.Exists(sibling))
+                return sibling;
+        }
+
+        // Depois procura em uma pasta "covers" ao lado da imagem do jogo.
+        var coverFolder = Path.Combine(gameFile.DirectoryName!, "covers");
+        if (Directory.Exists(coverFolder))
+        {
+            foreach (var extension in CoverExtensions)
+            {
+                var cover = Path.Combine(coverFolder, gameFile.Name + extension);
+                if (File.Exists(cover))
+                    return cover;
+
+                cover = Path.Combine(coverFolder, Path.GetFileNameWithoutExtension(gameFile.Name) + extension);
+                if (File.Exists(cover))
+                    return cover;
+            }
+        }
+
+        return null;
     }
 }
