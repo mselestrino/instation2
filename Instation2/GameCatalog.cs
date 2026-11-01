@@ -3,16 +3,6 @@ using System.Text.Json;
 
 namespace Instation2;
 
-public sealed class GameMetadata
-{
-    public string Title { get; set; } = "";
-    public string[] Aliases { get; set; } = [];
-    public string? Serial { get; set; }
-    public string? Region { get; set; }
-    public string? Description { get; set; }
-    public string? CoverUrl { get; set; }
-}
-
 public static class GameCatalog
 {
     private const string CatalogUrl = "https://raw.githubusercontent.com/mselestrino/instation2/main/catalog/games.json";
