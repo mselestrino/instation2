@@ -70,3 +70,25 @@ Use o botão **Emulador** para selecionar `pcsx2-qt.exe`. Depois selecione um jo
 4. Melhorar a integração com o PCSX2.
 
 O projeto não distribui imagens ISO comerciais. Use cópias de jogos que você tenha direito de utilizar.
+
+
+## Catálogo online de metadados
+
+O launcher consulta `catalog/games.json` no repositório para associar nomes de arquivos a títulos, códigos de produto, região, descrição e capas. Os resultados são armazenados em cache em `%LOCALAPPDATA%\\Instation2\\cache`, permitindo reutilizar o último catálogo disponível quando estiver sem internet.
+
+A correspondência usa o nome do arquivo do jogo (sem extensão) e os aliases cadastrados. Para adicionar uma entrada, use este formato:
+
+```json
+[
+  {
+    "title": "Nome oficial do jogo",
+    "aliases": ["Nome alternativo usado no arquivo"],
+    "serial": "Código do disco, se conhecido",
+    "region": "Região, se conhecida",
+    "description": "Descrição curta",
+    "coverUrl": "https:// endereço de uma capa com uso autorizado"
+  }
+]
+```
+
+O catálogo inicial está vazio de propósito: somente dados verificados e imagens com origem/licença adequada devem ser adicionados. Capas locais continuam tendo prioridade sobre as capas do catálogo.
